@@ -1,50 +1,70 @@
 import React from "react";
-import "./App.css";
+import "./App.scss";
 import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
 
 import { Session } from "./components/Session";
 import { Home } from "./components/Home/Home";
-import { UserInformationForm } from "./components/Home/UserInformationForm";
+import { UserInformationForm } from "./components/UserInformationForm";
 
-function App() {
+import uuidv1 from'uuid/v1';
 
+const setUserId = () => {
+  if(!localStorage.userId){
+    localStorage.userId = uuidv1();
+  }
+}
+
+setUserId();
+
+const App = () => {
   const showDialog = true;
-  const setUserName = (username) => {
-    alert(username)
+  const setUserName = username => {
+    localStorage.username = username;
   };
+
+  const setUserNameDialog = !localStorage.username ? (
+    <UserInformationForm showDialog={showDialog} onUsernameSet={setUserName} />
+  ) : (
+    undefined
+  );
   return (
     <Router>
-      <UserInformationForm showDialog={showDialog} onUsernameSet={setUserName}/>
-      <div className="cover-container d-flex h-100 p-3 mx-auto flex-column">
-        <header className="masthead mb-auto">
-          <div className="inner">
-            <h3 className="masthead-brand">Remote Moderator</h3>
-            <nav className="nav nav-masthead justify-content-center">
-              <NavLink to="/" className="nav-link" activeClassName="active">
-                Home
-              </NavLink>
-              <NavLink to="/12321" exact={true} className="nav-link" activeClassName="active">
-                Foo
-              </NavLink>
-            </nav>
+      {setUserNameDialog}
+      <div className="app">
+        <header>
+          <div>
+            <h3 className="masthead-brand">
+              Remote Moderator ({localStorage.username})
+            </h3>
           </div>
+          <nav>
+            <NavLink to="/" className="nav-link" activeClassName="active">
+              Home
+            </NavLink>
+            <NavLink
+              to="/12321"
+              exact={true}
+              className="nav-link"
+              activeClassName="active"
+            >
+              Foo
+            </NavLink>
+          </nav>
         </header>
 
-        <main role="main" className="inner cover">
+        <main>
           <Route exact path="/" component={Home} />
           <Route exact path="/:id" component={Session} />
         </main>
 
-        <footer className="mastfoot mt-auto">
-          <div className="inner">
-            <p>
-              By <a href="http://luisbravoa.com/"> Luisbravoa</a>.
-            </p>
-          </div>
+        <footer>
+          <p>
+            By <a href="http://luisbravoa.com/"> Luisbravoa</a>.
+          </p>
         </footer>
       </div>
     </Router>
   );
-}
+};
 
 export default App;

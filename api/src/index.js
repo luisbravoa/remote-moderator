@@ -1,33 +1,30 @@
-const express = require('express');
-const app = express();
-var cors = require('cors')
+var app = require('express')();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
+var bodyParser = require('body-parser');
+var Session = require('./session');
+var db = require('./db');
 
-const expressWs = require('express-ws')(app);
- 
+const data = db.read();
+console.log(data);
 
-app.use(cors());
+app.use(bodyParser.urlencoded({
+  extended: true
+}));
 
-app.use(function (req, res, next) {
-  console.log('middleware');
-  req.testing = 'testing';
-  return next();
+app.use(bodyParser.json());
+
+app.post('create', (req, res) => {
+
 });
- 
-app.get('/', function(req, res, next){
-  console.log('get route', req.testing);
-  res.end();
-});
-let count = 0;
- 
-app.ws('/', function(ws, req) {
-  ws.on('message', function(msg) {
-    console.log(msg);
-  });
-  console.log('socket', req.testing);
 
-  setInterval(() => {
-      ws.send(count++);
-  }, 1000);
+io.on('connection', function(socket){
+  console.log('a user connected');
+
+  socket.emit('algo', { foo: 'bar'});
+
 });
- 
-app.listen(3001);
+
+http.listen(3001, function(){
+  console.log('listening on *:3001');
+});

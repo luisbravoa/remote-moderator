@@ -1,17 +1,16 @@
 import React from "react";
 
+import Socket from 'socket.io-client';
 
-// Create WebSocket connection.
-const socket = new WebSocket('ws://localhost:3001');
-
-// Connection opened
-socket.addEventListener('open', function (event) {
-    socket.send('Hello Server!');
+const socket = Socket('http://localhost:3001');
+socket.on('connect', () => {
+  console.log('connected');
 });
-
-// Listen for messages
-socket.addEventListener('message', function (event) {
-    console.log('Message from server ', event.data);
+socket.on('algo', (data) => {
+  console.log(data);
+});
+socket.on('disconnect', () => {
+  console.log('connected');
 });
 
 export const Session = ({ match }) => {

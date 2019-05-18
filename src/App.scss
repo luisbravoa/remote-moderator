@@ -1,0 +1,56 @@
+html,
+body {
+  height: 100%;
+  background-color: #282c34;
+  color: white;
+  padding: 0;
+  margin: 0;
+  font-family: 'Roboto', sans-serif;
+
+  a {
+    color: white;
+    text-decoration: none;
+  }
+  a:hover {
+    text-decoration: underline;
+  }
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+
+  @media screen and (min-width: 600px) {
+    header, main, footer {
+      padding: 10px 70px;
+    }
+  }
+  @media screen and (max-width: 600px) {
+    header, main, footer {
+      padding: 10px 20px;
+    }
+  }
+
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 50px;
+
+    h3 {
+      margin: 0;
+    }
+
+    nav {
+      a {
+        margin: 10px;
+      }
+    }
+  }
+  main {
+    height: 100%;
+  }
+  footer {
+  }
+}
