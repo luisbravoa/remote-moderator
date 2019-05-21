@@ -1,18 +1,72 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
+import Network from "../common/Network";
+import Notification from "./Notification";
+import UserList from "./UserList";
+import SpeakingIndicator from "./SpeakingIndicator";
+import './Session.scss';
 
-import Socket from 'socket.io-client';
+export const Session = ({ match, username, userId }) => {
+  const { id } = match.params;
+  const [participants, setParticipants] = useState([]);
+  const [error, setError] = useState(undefined);
+  const [notification, setNotification] = useState(undefined);
+  const [isModerator, setIsModerator] = useState(false);
 
-const socket = Socket('http://localhost:3001');
-socket.on('connect', () => {
-  console.log('connected');
-});
-socket.on('algo', (data) => {
-  console.log(data);
-});
-socket.on('disconnect', () => {
-  console.log('connected');
-});
+  useEffect(() => {
+    if(!username){
+      return;
+    }
+    Network.connect(
+      {
+        id,
+        userId,
+        username
+      },
+      {
+        onError: event => {
+          console.log(event.message);
+          setError(event.message);
+        },
+        onDisconnect: () => {},
+        onMessage: (event) => {
+          const { type, data } = event;
+          console.log(event);
+          switch(type){
+            case 'participants':
+              setParticipants(data);
+              break;
+            case 'joined':
+              if(data.id === userId){
+                setIsModerator(data.isModerator);
+              } else {
+                setNotification(`${data.name} joined!`);
+              }
+              break;
+          }
+        }
+      }
+    );
+  }, [username]);
 
-export const Session = ({ match }) => {
-  return <div>Session {match.params.id}</div>;
+  const onErrorClose = () => {
+    setError(undefined);
+    setNotification(undefined);
+  };
+
+  const showNotification = () => {
+    return !!error || !!notification;
+  }
+
+  return (
+    <div className="session">
+      <Notification open={showNotification()} handleClose={onErrorClose} message={error || notification} />
+      {/* <div>Session {match.params.id}</div>
+      <div>isModerator {JSON.stringify(isModerator)}</div>
+      <div>participants {JSON.stringify(participants)}</div> */}
+      <div className="content">
+        <SpeakingIndicator name="Luis"/>
+        <UserList users={participants} showActions={isModerator}></UserList>
+      </div>
+    </div>
+  );
 };

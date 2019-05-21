@@ -1,0 +1,11 @@
+.session {
+  height: calc(100% - 150px);
+  .content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    justify-content: space-around;
+
+    height: 80vh;
+  }
+}

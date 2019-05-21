@@ -1,40 +1,37 @@
-import React from "react";
+import React, { useState } from "react";
 import "./App.scss";
 import { BrowserRouter as Router, Route, NavLink } from "react-router-dom";
 
 import { Session } from "./components/Session";
-import { Home } from "./components/Home/Home";
+import { Home } from "./components/Home";
 import { UserInformationForm } from "./components/UserInformationForm";
+import Network from './common/Network';
+import UserInfo from './common/UserInfo';
 
-import uuidv1 from'uuid/v1';
-
-const setUserId = () => {
-  if(!localStorage.userId){
-    localStorage.userId = uuidv1();
-  }
-}
-
-setUserId();
+UserInfo.setUserId();
 
 const App = () => {
-  const showDialog = true;
-  const setUserName = username => {
-    localStorage.username = username;
+
+  const [username, setUserName] = useState(UserInfo.getUserName());
+
+  const createSession = async () => {
+    const newSession = await Network.createSession(UserInfo.getUserId());
+    window.location = `/${newSession.data.id}`;
+  }
+
+  const handleSetUserName = (name) => {
+    UserInfo.setUserName(name);
+    setUserName(UserInfo.getUserName());
   };
 
-  const setUserNameDialog = !localStorage.username ? (
-    <UserInformationForm showDialog={showDialog} onUsernameSet={setUserName} />
-  ) : (
-    undefined
-  );
   return (
     <Router>
-      {setUserNameDialog}
+      <UserInformationForm showDialog={!username} onUsernameSet={handleSetUserName} />
       <div className="app">
         <header>
           <div>
             <h3 className="masthead-brand">
-              Remote Moderator ({localStorage.username})
+              Remote Moderator ({username})
             </h3>
           </div>
           <nav>
@@ -53,8 +50,10 @@ const App = () => {
         </header>
 
         <main>
-          <Route exact path="/" component={Home} />
-          <Route exact path="/:id" component={Session} />
+          <Route exact path="/" component={() => <Home createSession={createSession}/>} />
+          <Route exact path="/:id" component={({match}) =>
+            <Session match={match} username={username} userId={UserInfo.getUserId()}/>
+          } />
         </main>
 
         <footer>

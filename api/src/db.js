@@ -4,17 +4,38 @@ const { resolve } = require('path');
 
 const filePath = resolve('./data.json');
 
-module.exports = class db {
-  static save (data){
-    writeFileSync(filePath, JSON.stringify(data, null, 2));
+class db {
+
+  constructor() {
+    this.data = this.read();
   }
 
-  static read() {
+  readKey(key) {
+    return this.data[key];
+  }
+
+  saveKey(key, value) {
+    this.data[key] = value;
+    this.save();
+  }
+
+  save(){
+    writeFileSync(filePath, JSON.stringify(this.data, null, 2));
+  }
+
+  read() {
     if(!existsSync(filePath)){
       this.save({});
     }
     
-    return JSON.parse(readFileSync(filePath).toString('utf8'));
+    try {
+      return JSON.parse(readFileSync(filePath).toString('utf8'));
+    } catch(e) {
+      return {};
+    }
+    
   }
 
 }
+
+module.exports = new db();
